@@ -7,9 +7,19 @@ real time — with **role-based access control** enforced on the server.
 > Built for the Full-Stack assignment. Runs fully locally; deployment-ready for
 > Render/Railway (see [Deployment](#deployment)).
 
-**Live URL:** _not deployed yet — run locally with the steps below._
+**Live URL:** [synctube-watch-party.onrender.com](https://synctube-watch-party.onrender.com/)
 
 ---
+
+## Screenshots
+
+| Home screen | Host view — video ready |
+|---|---|
+| ![Synctube home screen](./docs/screenshots/01-home.png) | ![host with a video ready](./docs/screenshots/06-host-video-ready.png) |
+
+| Host view — playback | Host managing participants and roles |
+|---|---|
+| ![host playing a video](./docs/screenshots/07-host-video-playing.png) | ![host managing participants and roles](./docs/screenshots/08-host-no-video.png) |
 
 ## Features
 
@@ -109,16 +119,6 @@ change-video sync, **RBAC rejection**, promote-to-moderator, chat, transfer-host
 and removal. See
 [docs/RESULTS.md](./docs/RESULTS.md) for captured output.
 
-## Screenshots
-
-| Home screen | Host view — video ready |
-|---|---|
-| ![Synctube home screen](./docs/screenshots/01-home.png) | ![host with a video ready](./docs/screenshots/06-host-video-ready.png) |
-
-| Host view — playback | Host managing participants and roles |
-|---|---|
-| ![host playing a video](./docs/screenshots/07-host-video-playing.png) | ![host managing participants and roles](./docs/screenshots/08-host-no-video.png) |
-
 ## Configuration
 
 | Var | Default | Purpose |
@@ -149,13 +149,11 @@ paid persistent disk or a database migration.
    `cd server && npm ci && npm run build && cd ../client && npm ci && npm run build`
    and start command `node server/dist/index.js`.
 2. Set `NODE_ENV=production` and
-   `CORS_ORIGIN=https://your-service.onrender.com`. Never use `*` for
+   `CORS_ORIGIN=https://synctube-watch-party.onrender.com`. Never use `*` for
    `CORS_ORIGIN`. Leave `VITE_SERVER_URL` unset so the frontend, API, and
    WebSocket connection use the same HTTPS origin.
 3. Confirm HTTPS, WebSocket connectivity, `/api/health`, and room sync in two
    browser sessions before publishing the public URL.
-
-Add the resulting public URL to the top of this README.
 
 ## What I'd explain in a walkthrough
 
