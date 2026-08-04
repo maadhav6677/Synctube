@@ -33,7 +33,7 @@ real time — with **role-based access control** enforced on the server.
 - ✅ **Persistence** — room/video state persists when deployed with durable storage
 - ✅ **Text chat** (bonus)
 - ✅ **OOP server** (bonus) — `Room`, `Participant`, `RoomManager`, `MessageHandler` classes
-- ✅ **35 automated tests** (unit + live-socket integration)
+- ✅ **36 automated tests** (unit + live-socket integration)
 
 ## Tech Stack
 
@@ -99,7 +99,7 @@ server proxies `/api` and the WebSocket to the backend on `:4001`.
 
 ```bash
 cd server
-npm test               # 35 tests: unit + live-socket integration
+npm test               # 36 tests: unit + live-socket integration
 ```
 
 The integration suite boots a real Socket.IO server and drives it with real

@@ -76,6 +76,10 @@ export function createApp(dbFile: string): AppHandle {
       limit: 120,
       standardHeaders: "draft-8",
       legacyHeaders: false,
+      // Platform probes must always be able to report availability. Applying
+      // this public-request limit to them can otherwise turn a healthy app
+      // into a failed deployment after enough checks in one window.
+      skip: (request) => request.path === "/api/health",
     })
   );
   app.use(

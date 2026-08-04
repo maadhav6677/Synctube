@@ -91,6 +91,13 @@ describe("REST", () => {
     expect((await res.json()).status).toBe("ok");
   });
 
+  it("does not rate-limit deployment health checks", async () => {
+    const responses = await Promise.all(
+      Array.from({ length: 121 }, () => fetch(`${url}/api/health`))
+    );
+    expect(responses.every((response) => response.status === 200)).toBe(true);
+  });
+
   it("creates and looks up a room", async () => {
     const roomId = await createRoom("dQw4w9WgXcQ");
     const res = await fetch(`${url}/api/rooms/${roomId}`);
