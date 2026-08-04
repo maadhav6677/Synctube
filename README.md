@@ -62,7 +62,7 @@ Browser (React + YT IFrame) ⇄ Socket.IO ⇄ Node server
 ```bash
 cd server
 npm ci
-npm run dev            # http://localhost:4000  (or: npm run build && npm start)
+npm run dev            # http://localhost:4001  (or: npm run build && npm start)
 ```
 
 ### 2. Frontend
@@ -75,7 +75,7 @@ npm run dev            # http://localhost:5173
 
 Open **http://localhost:5173**, enter a name, click **Create a room**, then open
 the copied invite link in a second browser window to see live sync. The Vite dev
-server proxies `/api` and the WebSocket to the backend on `:4000`.
+server proxies `/api` and the WebSocket to the backend on `:4001`.
 
 ### 3. Try it
 
@@ -101,7 +101,7 @@ With the backend running (`npm run dev` in `server/`):
 
 ```bash
 cd server
-node scripts/demo.mjs http://localhost:4000
+node scripts/demo.mjs http://localhost:4001
 ```
 
 Prints an annotated walkthrough: room creation, join/roles, play/seek/
@@ -111,19 +111,19 @@ and removal. See
 
 ## Screenshots
 
-| Host view (full controls) | Participant view (locked) |
+| Home screen | Host view — video ready |
 |---|---|
-| ![host](./docs/screenshots/02-host-room.png) | ![participant](./docs/screenshots/03-participant-locked.png) |
+| ![Synctube home screen](./docs/screenshots/01-home.png) | ![host with a video ready](./docs/screenshots/06-host-video-ready.png) |
 
-| Host managing a participant | Promoted to moderator |
+| Host view — playback | Host view — no video selected |
 |---|---|
-| ![manage](./docs/screenshots/04-host-with-participant.png) | ![promoted](./docs/screenshots/05-participant-promoted-moderator.png) |
+| ![host playing a video](./docs/screenshots/07-host-video-playing.png) | ![host choosing a video](./docs/screenshots/08-host-no-video.png) |
 
 ## Configuration
 
 | Var | Default | Purpose |
 |-----|---------|---------|
-| `PORT` | `4000` | backend port |
+| `PORT` | `4001` | backend port |
 | `CORS_ORIGIN` | `http://localhost:5173` in development | exact allowed frontend origin(s), comma-separated; **required in production** |
 | `DB_FILE` | `./data/watchparty.db` | SQLite file (`:memory:` = ephemeral) |
 | `VITE_SERVER_URL` | `""` (dev proxy) | client → backend origin in prod builds |

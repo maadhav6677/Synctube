@@ -166,7 +166,7 @@ Total: **33 automated tests**, all passing.
 
 | Var | Default | Purpose |
 |-----|---------|---------|
-| `PORT` | `4000` | server port |
+| `PORT` | `4001` | server port |
 | `CORS_ORIGIN` | `http://localhost:5173` in development | exact allowlist; required in production |
 | `DB_FILE` | `./data/watchparty.db` | SQLite path (`:memory:` for ephemeral) |
 | `VITE_SERVER_URL` | `""` (proxy) | client build-time backend origin |
