@@ -16,7 +16,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "better-sqlite3": "^11.8.1",
+    "better-sqlite3": "^13.0.2",
     "cors": "^2.8.5",
     "express-rate-limit": "^8.6.2",
     "express": "^4.21.2",
