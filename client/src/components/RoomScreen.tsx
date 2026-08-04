@@ -43,6 +43,11 @@ export function RoomScreen({ roomId, username, hostToken, onLeave }: Props) {
   const amController = canControlPlayback(myRole);
   const amHost = canManageRoom(myRole);
 
+  const flashToast = (message: string) => {
+    setToast(message);
+    setTimeout(() => setToast(""), 5000);
+  };
+
   // Keep my own role in sync as the participant roster updates.
   const myRoleFromRoster = useMemo(
     () => participants.find((p) => p.id === meId)?.role,
@@ -54,11 +59,6 @@ export function RoomScreen({ roomId, username, hostToken, onLeave }: Props) {
 
   useEffect(() => {
     socket.connect();
-
-    const flashToast = (msg: string) => {
-      setToast(msg);
-      setTimeout(() => setToast(""), 3000);
-    };
 
     socket.on("connect", () => {
       setConnected(true);
@@ -177,6 +177,7 @@ export function RoomScreen({ roomId, username, hostToken, onLeave }: Props) {
             onPlay={play}
             onPause={pause}
             onSeek={seek}
+            onError={flashToast}
           />
 
           {amController ? (
@@ -186,7 +187,9 @@ export function RoomScreen({ roomId, username, hostToken, onLeave }: Props) {
                 onChange={(e) => setVideoInput(e.target.value)}
                 placeholder="Paste a YouTube URL or video ID to change video…"
               />
-              <button type="submit" className="btn-secondary">Change video</button>
+              <button type="submit" className="btn-secondary">
+                {snapshot.videoId ? "Change video" : "Start video"}
+              </button>
             </form>
           ) : (
             <div className="controls-locked">

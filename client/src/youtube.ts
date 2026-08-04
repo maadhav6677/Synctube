@@ -23,11 +23,15 @@ export function parseVideoId(input: string): string | null {
 let apiPromise: Promise<void> | null = null;
 export function loadYouTubeAPI(): Promise<void> {
   if (apiPromise) return apiPromise;
-  apiPromise = new Promise<void>((resolve) => {
+  apiPromise = new Promise<void>((resolve, reject) => {
     if ((window as any).YT?.Player) return resolve();
     const tag = document.createElement("script");
     tag.src = "https://www.youtube.com/iframe_api";
     (window as any).onYouTubeIframeAPIReady = () => resolve();
+    tag.onerror = () => {
+      apiPromise = null;
+      reject(new Error("Failed to load the YouTube IFrame API"));
+    };
     document.head.appendChild(tag);
   });
   return apiPromise;
