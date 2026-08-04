@@ -5,11 +5,11 @@
  * full feature set — join/roles, playback sync, RBAC rejection, host actions,
  * chat — printing an annotated narrative of what each client observes.
  *
- * Usage:  node scripts/demo.mjs [serverUrl]   (default http://localhost:4000)
+ * Usage:  node scripts/demo.mjs [serverUrl]   (default http://localhost:4001)
  */
 import { io } from "socket.io-client";
 
-const URL = process.argv[2] ?? "http://localhost:4000";
+const URL = process.argv[2] ?? "http://localhost:4001";
 const log = (...a) => console.log(...a);
 const ok = (m) => log(`  \x1b[32m✓\x1b[0m ${m}`);
 const info = (m) => log(`  \x1b[36m•\x1b[0m ${m}`);
