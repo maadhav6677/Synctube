@@ -23,7 +23,7 @@ real time — with **role-based access control** enforced on the server.
 - ✅ **Persistence** — room/video state persists when deployed with durable storage
 - ✅ **Text chat** (bonus)
 - ✅ **OOP server** (bonus) — `Room`, `Participant`, `RoomManager`, `MessageHandler` classes
-- ✅ **33 automated tests** (unit + live-socket integration)
+- ✅ **35 automated tests** (unit + live-socket integration)
 
 ## Tech Stack
 
@@ -89,7 +89,7 @@ server proxies `/api` and the WebSocket to the backend on `:4001`.
 
 ```bash
 cd server
-npm test               # 33 tests: unit + live-socket integration
+npm test               # 35 tests: unit + live-socket integration
 ```
 
 The integration suite boots a real Socket.IO server and drives it with real
@@ -115,9 +115,9 @@ and removal. See
 |---|---|
 | ![Synctube home screen](./docs/screenshots/01-home.png) | ![host with a video ready](./docs/screenshots/06-host-video-ready.png) |
 
-| Host view — playback | Host view — no video selected |
+| Host view — playback | Host managing participants and roles |
 |---|---|
-| ![host playing a video](./docs/screenshots/07-host-video-playing.png) | ![host choosing a video](./docs/screenshots/08-host-no-video.png) |
+| ![host playing a video](./docs/screenshots/07-host-video-playing.png) | ![host managing participants and roles](./docs/screenshots/08-host-no-video.png) |
 
 ## Configuration
 
@@ -140,18 +140,20 @@ in-memory room registry and SQLite, so do not enable horizontal scaling. For
 multi-instance deployment, migrate room data to a managed database and add a
 Socket.IO adapter such as Redis.
 
-1. Create a **Backend Web Service** from `server/` with build command
-   `npm ci && npm run build` and start command `npm start`.
-2. Set `NODE_ENV=production`, `CORS_ORIGIN=https://your-frontend-domain`, and
-   `DB_FILE` to a path on a persistent volume, for example
-   `/var/data/watchparty.db`. Never use `*` for `CORS_ORIGIN`.
-3. Attach a persistent disk/volume to that same path. Without it, SQLite data
-   is lost on restart. Configure regular backups for the volume.
-4. Create a **Frontend Static Site** from `client/` with build command
-   `npm ci && npm run build`, publish directory `dist`, and build variable
-   `VITE_SERVER_URL=https://your-backend-domain`.
-5. Confirm HTTPS, WebSocket connectivity, `/api/health`, and cross-origin
-   requests in a staging environment before publishing the public URL.
+For the free Render deployment, rooms are temporary: its filesystem is reset
+when the service sleeps, restarts, or redeploys. The assignment's realtime
+features work while the service is running; durable SQLite storage requires a
+paid persistent disk or a database migration.
+
+1. Create one **Web Service** from the repository root with build command
+   `cd server && npm ci && npm run build && cd ../client && npm ci && npm run build`
+   and start command `node server/dist/index.js`.
+2. Set `NODE_ENV=production` and
+   `CORS_ORIGIN=https://your-service.onrender.com`. Never use `*` for
+   `CORS_ORIGIN`. Leave `VITE_SERVER_URL` unset so the frontend, API, and
+   WebSocket connection use the same HTTPS origin.
+3. Confirm HTTPS, WebSocket connectivity, `/api/health`, and room sync in two
+   browser sessions before publishing the public URL.
 
 Add the resulting public URL to the top of this README.
 
@@ -161,4 +163,4 @@ Add the resulting public URL to the top of this README.
 - **WebSockets** give a persistent duplex channel so state changes push instantly instead of polling.
 - **RBAC** is one permission matrix consulted in the per-socket `MessageHandler` before every mutation.
 - **YouTube IFrame** sync avoids feedback loops via a suppression guard and a drift threshold.
-- **Security**: host authority is a server-issued capability; inputs, HTTP requests, and socket actions are bounded and rate-limited.
+- **Security**: host authority is a server-issued capability; inputs, HTTP requests, and socket actions are bounded and rate-limited. In production, Helmet sends CSP, anti-clickjacking, referrer, and permissions headers.
