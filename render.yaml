@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: synctube-maadhav
+    name: synctube-watch-party
     runtime: node
     plan: free
     buildCommand: cd server && npm ci && npm run build && cd ../client && npm ci && npm run build
