@@ -3,7 +3,7 @@ services:
     name: synctube-watch-party
     runtime: node
     plan: free
-    buildCommand: cd server && npm ci && npm run build && cd ../client && npm ci && npm run build
+    buildCommand: cd server && npm ci --include=dev && npm run build && cd ../client && npm ci --include=dev && npm run build
     startCommand: node server/dist/index.js
     healthCheckPath: /api/health
     autoDeploy: true
