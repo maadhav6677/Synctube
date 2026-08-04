@@ -1,0 +1,49 @@
+# Dependencies and generated builds
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+*.tsbuildinfo
+
+# Local configuration. Keep safe, documented templates versioned.
+.env*
+!.env.example
+
+# Local state and databases
+data/
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Private keys, certificates, and credential exports
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+credentials.json
+service-account*.json
+
+# Logs and test tooling
+*.log
+playwright-report/
+test-results/
+.DS_Store
+docs/screenshots/*.tmp
+
+# root helper deps used only for local screenshot capture
+/package.json
+/package-lock.json
+/node_modules/
+/capture.mjs
+
+
+.env.local
+.env.production 
+.env.development
