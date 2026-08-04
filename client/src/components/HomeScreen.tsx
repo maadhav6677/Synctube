@@ -58,8 +58,12 @@ export function HomeScreen({ initialRoomId, onEnter }: Props) {
 
   return (
     <div className="home">
+      <header className="home-brand" aria-label="Synctube">
+        <img className="home-brand-mark" src="/favicon.svg" alt="" />
+        <span>Synctube</span>
+      </header>
       <div className="home-card">
-        <h1>🎬 Watch Party</h1>
+        <h1>Watch Party 🎬 🍿</h1>
         <p className="subtitle">Watch YouTube together, in perfect sync.</p>
 
         <label>
