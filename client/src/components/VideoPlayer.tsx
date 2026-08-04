@@ -1,5 +1,10 @@
 import { useEffect, useRef } from "react";
-import { loadYouTubeAPI } from "../youtube";
+import {
+  loadYouTubeAPI,
+  type YouTubePlayer,
+  type YouTubePlayerErrorEvent,
+  type YouTubePlayerStateEvent,
+} from "../youtube";
 import type { VideoSnapshot } from "../types";
 
 interface Props {
@@ -23,12 +28,21 @@ interface Props {
  */
 export function VideoPlayer({ snapshot, canControl, onPlay, onPause, onSeek, onError }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<any>(null);
+  const playerRef = useRef<YouTubePlayer | null>(null);
   const readyRef = useRef(false);
   const suppress = useRef(false);
+  const suppressTimer = useRef<number | null>(null);
   const lastVideoId = useRef<string | null>(null);
   const snapshotRef = useRef(snapshot);
+  const canControlRef = useRef(canControl);
+  const onPlayRef = useRef(onPlay);
+  const onPauseRef = useRef(onPause);
+  const onSeekRef = useRef(onSeek);
   snapshotRef.current = snapshot;
+  canControlRef.current = canControl;
+  onPlayRef.current = onPlay;
+  onPauseRef.current = onPause;
+  onSeekRef.current = onSeek;
 
   // Create the player once.
   useEffect(() => {
@@ -36,7 +50,11 @@ export function VideoPlayer({ snapshot, canControl, onPlay, onPause, onSeek, onE
     loadYouTubeAPI()
       .then(() => {
         if (cancelled || !containerRef.current) return;
-        const YT = (window as any).YT;
+        const YT = window.YT;
+        if (!YT) {
+          onError("Unable to initialize the YouTube player.");
+          return;
+        }
         playerRef.current = new YT.Player(containerRef.current, {
           width: "100%",
           height: "100%",
@@ -70,6 +88,7 @@ export function VideoPlayer({ snapshot, canControl, onPlay, onPause, onSeek, onE
       });
     return () => {
       cancelled = true;
+      if (suppressTimer.current !== null) window.clearTimeout(suppressTimer.current);
       playerRef.current?.destroy?.();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,55 +104,78 @@ export function VideoPlayer({ snapshot, canControl, onPlay, onPause, onSeek, onE
     const player = playerRef.current;
     if (!player) return;
 
-    suppress.current = true;
+    suppressLocalEvents(initial ? 800 : 500);
 
-    // Load or cue a different video. A newly selected video starts paused, so
-    // `cueVideoById` is the correct YouTube API call: it shows a ready player
-    // without racing `loadVideoById` against an immediate pause.
+    // Cue a newly selected video and wait for YouTube's CUED event before
+    // applying its play/pause state. Calling playVideo immediately after
+    // cueVideoById is unreliable on slower client connections.
     const videoChanged = Boolean(s.videoId && s.videoId !== lastVideoId.current);
     if (videoChanged && s.videoId) {
       lastVideoId.current = s.videoId;
-      if (s.playState === "playing") {
-        player.loadVideoById({ videoId: s.videoId, startSeconds: s.currentTime });
-      } else {
-        player.cueVideoById({ videoId: s.videoId, startSeconds: s.currentTime });
-      }
+      player.cueVideoById({ videoId: s.videoId, startSeconds: s.currentTime });
     } else if (s.videoId) {
-      // Re-sync the playhead if we've drifted more than ~1s.
-      const cur = player.getCurrentTime?.() ?? 0;
-      if (Math.abs(cur - s.currentTime) > 1) {
-        player.seekTo(s.currentTime, true);
-      }
+      applyPlaybackState(s);
     }
-
-    // The cue branch above is already paused. Only control playback for a
-    // video that was already loaded so we never interrupt its initial load.
-    if (!videoChanged && s.videoId) {
-      if (s.playState === "playing") player.playVideo?.();
-      else player.pauseVideo?.();
-    }
-
-    // Release the guard after the YT events settle.
-    setTimeout(() => (suppress.current = false), initial ? 800 : 400);
   }
 
-  function onPlayerStateChange(e: any) {
-    if (!canControl || suppress.current) return;
-    const YT = (window as any).YT;
+  function applyPlaybackState(s: VideoSnapshot) {
     const player = playerRef.current;
-    const t = player?.getCurrentTime?.() ?? 0;
+    if (!player || !s.videoId) return;
+
+    // Re-sync the playhead if the browser has visibly drifted from the room.
+    const currentTime = player.getCurrentTime?.() ?? 0;
+    if (Math.abs(currentTime - s.currentTime) > 0.75) {
+      player.seekTo(s.currentTime, true);
+    }
+
+    if (s.playState === "playing") player.playVideo?.();
+    else player.pauseVideo?.();
+  }
+
+  function suppressLocalEvents(duration: number) {
+    suppress.current = true;
+    if (suppressTimer.current !== null) window.clearTimeout(suppressTimer.current);
+    suppressTimer.current = window.setTimeout(() => {
+      suppress.current = false;
+      suppressTimer.current = null;
+    }, duration);
+  }
+
+  function onPlayerStateChange(e: YouTubePlayerStateEvent) {
+    const YT = window.YT;
+    if (!YT) return;
+
+    // A cue is asynchronous. Apply the newest server state only after the
+    // selected video is ready, so a host's already-playing video starts for
+    // participants as well as for late joiners.
+    if (e.data === YT.PlayerState.CUED) {
+      suppressLocalEvents(500);
+      applyPlaybackState(snapshotRef.current);
+      return;
+    }
+
+    if (!canControlRef.current) {
+      // Participants may watch but cannot create a competing local timeline.
+      // This also corrects a keyboard/media-key action that reaches YouTube.
+      if (!suppress.current) applySnapshot(snapshotRef.current, false);
+      return;
+    }
+
+    if (suppress.current) return;
+    const player = playerRef.current;
+    const t = player?.getCurrentTime() ?? 0;
 
     if (e.data === YT.PlayerState.PLAYING) {
       // Distinguish a real play from a seek-while-playing using the last known state.
-      if (snapshotRef.current.playState !== "playing") onPlay(t);
-      else onSeek(t);
+      if (snapshotRef.current.playState !== "playing") onPlayRef.current(t);
+      else onSeekRef.current(t);
     } else if (e.data === YT.PlayerState.PAUSED) {
-      onPause(t);
+      onPauseRef.current(t);
     }
   }
 
-  function onPlayerError(e: any) {
-    const code = Number(e?.data);
+  function onPlayerError(e: YouTubePlayerErrorEvent) {
+    const code = e.data;
     const message =
       code === 100
         ? "YouTube says this video is private, removed, or unavailable."
@@ -150,6 +192,7 @@ export function VideoPlayer({ snapshot, canControl, onPlay, onPause, onSeek, onE
   return (
     <div className="video-wrap">
       <div ref={containerRef} className="video-frame" />
+      {!canControl && snapshot.videoId && <div className="video-lock" aria-hidden="true" />}
       {!snapshot.videoId && (
         <div className="video-empty">No video loaded. {canControl ? "Paste a YouTube URL below." : "Waiting for host…"}</div>
       )}

@@ -20,6 +20,51 @@ export interface ChatMessage {
   at: number;
 }
 
+export interface CreatedRoomResponse {
+  roomId: string;
+  hostToken: string;
+}
+
+export interface JoinRoomSuccess {
+  ok: true;
+  you: Participant;
+  roomId: string;
+  participants: Participant[];
+  video: VideoSnapshot;
+}
+
+export interface JoinRoomFailure {
+  ok: false;
+  error?: string;
+}
+
+export type JoinRoomResult = JoinRoomSuccess | JoinRoomFailure;
+
+export interface ParticipantRosterEvent {
+  username: string;
+  participants: Participant[];
+}
+
+export interface RoleAssignedEvent extends ParticipantRosterEvent {
+  role: Role;
+}
+
+export interface ParticipantRemovedEvent {
+  participants: Participant[];
+}
+
+export interface HostTransferredEvent {
+  participants: Participant[];
+}
+
+export interface HostCredentialsEvent {
+  hostToken: string;
+}
+
+export interface SocketErrorEvent {
+  message: string;
+}
+
 /** Permissions mirror the backend matrix so the UI can pre-disable controls.
  *  The backend remains the source of truth and re-validates every action. */
 export function canControlPlayback(role: Role): boolean {

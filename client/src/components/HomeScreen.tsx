@@ -1,9 +1,22 @@
 import { useState } from "react";
 import { API_BASE } from "../socket";
+import type { CreatedRoomResponse } from "../types";
 
 interface Props {
   initialRoomId?: string;
   onEnter: (roomId: string, username: string, hostToken?: string) => void;
+}
+
+function isCreatedRoomResponse(value: unknown): value is CreatedRoomResponse {
+  if (!value || typeof value !== "object") return false;
+  const data = value as Record<string, unknown>;
+  return typeof data.roomId === "string" && typeof data.hostToken === "string";
+}
+
+function responseError(value: unknown, fallback: string): string {
+  if (!value || typeof value !== "object") return fallback;
+  const error = (value as Record<string, unknown>).error;
+  return typeof error === "string" ? error : fallback;
 }
 
 /** Landing page: create a fresh room or join an existing one by code/link. */
@@ -23,9 +36,9 @@ export function HomeScreen({ initialRoomId, onEnter }: Props) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({}),
       });
-      const data = await res.json();
-      if (!res.ok || typeof data.roomId !== "string" || typeof data.hostToken !== "string") {
-        setError(data.error ?? "Could not create a room.");
+      const data: unknown = await res.json();
+      if (!res.ok || !isCreatedRoomResponse(data)) {
+        setError(responseError(data, "Could not create a room."));
         return;
       }
       onEnter(data.roomId, username.trim(), data.hostToken);

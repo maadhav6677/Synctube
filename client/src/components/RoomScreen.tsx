@@ -5,6 +5,13 @@ import {
   type Role,
   type VideoSnapshot,
   type ChatMessage,
+  type JoinRoomResult,
+  type ParticipantRosterEvent,
+  type RoleAssignedEvent,
+  type ParticipantRemovedEvent,
+  type HostTransferredEvent,
+  type HostCredentialsEvent,
+  type SocketErrorEvent,
   canControlPlayback,
   canManageRoom,
 } from "../types";
@@ -65,7 +72,7 @@ export function RoomScreen({ roomId, username, hostToken, onLeave }: Props) {
       socket.emit(
         "join_room",
         { roomId, username, hostToken },
-        (res: any) => {
+        (res: JoinRoomResult) => {
           if (!res.ok) {
             flashToast(res.error ?? "Failed to join");
             onLeave();
@@ -81,29 +88,27 @@ export function RoomScreen({ roomId, username, hostToken, onLeave }: Props) {
 
     socket.on("disconnect", () => setConnected(false));
 
-    socket.on("sync_state", (s: any) =>
+    socket.on("sync_state", (s: VideoSnapshot) =>
       setSnapshot({ videoId: s.videoId, playState: s.playState, currentTime: s.currentTime })
     );
-    socket.on("user_joined", (p: any) => {
+    socket.on("user_joined", (p: ParticipantRosterEvent) => {
       setParticipants(p.participants);
       flashToast(`${p.username} joined`);
     });
-    socket.on("user_left", (p: any) => {
+    socket.on("user_left", (p: ParticipantRosterEvent) => {
       setParticipants(p.participants);
       flashToast(`${p.username} left`);
     });
-    socket.on("role_assigned", (p: any) => {
+    socket.on("role_assigned", (p: RoleAssignedEvent) => {
       setParticipants(p.participants);
       flashToast(`${p.username} is now ${p.role}`);
     });
-    socket.on("participant_removed", (p: any) => setParticipants(p.participants));
-    socket.on("host_transferred", (p: any) => {
+    socket.on("participant_removed", (p: ParticipantRemovedEvent) => setParticipants(p.participants));
+    socket.on("host_transferred", (p: HostTransferredEvent) => {
       setParticipants(p.participants);
       flashToast(`Host transferred`);
     });
-    socket.on("host_credentials", (p: any) => {
-      if (typeof p.hostToken === "string") saveHostToken(roomId, p.hostToken);
-    });
+    socket.on("host_credentials", (p: HostCredentialsEvent) => saveHostToken(roomId, p.hostToken));
     socket.on("you_were_removed", () => {
       flashToast("You were removed from the room");
       setTimeout(onLeave, 800);
@@ -111,7 +116,7 @@ export function RoomScreen({ roomId, username, hostToken, onLeave }: Props) {
     socket.on("chat_message", (m: ChatMessage) =>
       setMessages((prev) => [...prev, m])
     );
-    socket.on("error_message", (e: any) => flashToast(`⚠️ ${e.message}`));
+    socket.on("error_message", (e: SocketErrorEvent) => flashToast(`⚠️ ${e.message}`));
 
     return () => {
       socket.emit("leave_room", { roomId });
