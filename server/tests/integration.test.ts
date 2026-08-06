@@ -377,6 +377,7 @@ describe("presence + chat", () => {
       const msg = await p;
       expect(msg.text).toBe("hello room");
       expect(msg.username).toBe("Alice");
+      expect(Number.isFinite(msg.at)).toBe(true);
     } finally {
       host.close();
       guest.close();

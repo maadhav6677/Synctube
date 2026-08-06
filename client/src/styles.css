@@ -123,7 +123,7 @@ input:focus, select:focus { border-color: var(--accent); }
 .video-change input { flex: 1; }
 .controls-locked { color: var(--muted); background: var(--panel); border: 1px dashed var(--border); border-radius: 8px; padding: 12px; text-align: center; }
 
-.room-side { display: flex; flex-direction: column; gap: 16px; }
+.room-side { display: flex; flex-direction: column; gap: 16px; min-height: 0; }
 .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
 
 .participant-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
@@ -145,12 +145,15 @@ input:focus, select:focus { border-color: var(--accent); }
 
 /* ---------- Chat ---------- */
 .chat-panel { display: flex; flex-direction: column; flex: 1; min-height: 220px; }
-.chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; max-height: 300px; }
+.chat-messages { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
 .chat-empty { color: var(--muted); font-size: 14px; }
 .chat-msg { background: var(--panel-2); padding: 6px 10px; border-radius: 8px; font-size: 14px; }
 .chat-msg.mine { background: rgba(109,94,252,.16); }
-.chat-author { font-weight: 600; margin-right: 6px; color: var(--accent); }
+.chat-message-meta { display: flex; align-items: baseline; gap: 8px; }
+.chat-author { font-weight: 600; color: var(--accent); }
 .chat-msg.mine .chat-author { color: #b4aaff; }
+.chat-time { margin-left: auto; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.chat-text { display: block; margin-top: 2px; overflow-wrap: anywhere; }
 .chat-input { display: flex; gap: 8px; }
 .chat-input input { flex: 1; }
 
