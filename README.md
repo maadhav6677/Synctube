@@ -4,9 +4,6 @@ Watch YouTube videos together in perfect sync. Create a room, share the code,
 and everyone's player mirrors the host's play / pause / seek / video changes in
 real time — with **role-based access control** enforced on the server.
 
-> Built for the Full-Stack assignment. Runs fully locally; deployment-ready for
-> Render/Railway (see [Deployment](#deployment)).
-
 **Live URL:** [synctube-watch-party.onrender.com](https://synctube-watch-party.onrender.com/)
 
 ---
